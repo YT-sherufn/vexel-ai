@@ -5,14 +5,13 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// List of available models from your key to try in order
+// Ordered strictly from FASTEST to slower fallback options
 const MODELS_TO_TRY = [
+  'gemini-3.1-flash-lite',
+  'gemini-3.5-flash-lite',
+  'gemini-2.5-flash-lite',
   'gemini-flash-latest',
-  'gemini-2.5-flash',
-  'gemini-3.6-flash',
-  'gemini-3.7-flash',
-  'gemini-3.8-flash',
-  'gemini-2.5-pro'
+  'gemini-2.5-flash'
 ];
 
 async function handleChat(req, res) {
