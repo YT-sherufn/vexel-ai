@@ -5,23 +5,52 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// List of available models from your key to try in order
+const MODELS_TO_TRY = [
+  'gemini-flash-latest',
+  'gemini-2.5-flash',
+  'gemini-3.6-flash',
+  'gemini-3.7-flash',
+  'gemini-3.8-flash',
+  'gemini-2.5-pro'
+];
+
 async function handleChat(req, res) {
   try {
+    const message = req.body.message || req.body.prompt || req.body.text || "Hello";
     const apiKey = process.env.GEMINI_API_KEY;
 
-    // Fetch available models directly from Google for your key
-    const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    const listData = await listResponse.json();
+    let lastError = null;
 
-    if (listData.error) {
-      return res.json({ reply: "API Key Error: " + listData.error.message });
+    // Cycle through available models until one responds successfully
+    for (const modelName of MODELS_TO_TRY) {
+      try {
+        const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: message }] }]
+          })
+        });
+
+        const data = await apiResponse.json();
+
+        if (data.error) {
+          lastError = data.error.message;
+          continue; // Try next model in list if this one fails
+        }
+
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (reply) {
+          return res.json({ reply });
+        }
+      } catch (err) {
+        lastError = err.message;
+      }
     }
 
-    const availableModels = listData.models
-      ? listData.models.map(m => m.name.replace('models/', '')).join(', ')
-      : 'No models found';
+    res.json({ reply: "Google API Error across all models: " + (lastError || "Failed to generate content") });
 
-    res.json({ reply: "AVAILABLE MODELS FOR YOUR KEY: " + availableModels });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
