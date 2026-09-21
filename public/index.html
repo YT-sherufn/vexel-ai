@@ -316,12 +316,28 @@
       input.value = '';
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // Handle custom "MASTER" response triggers
       const lowerText = text.toLowerCase();
-      const triggers = ['sorry', 'ty', 'thanks', 'thank you', 'please', 'okay', 'ok'];
-      const isTriggerWord = triggers.some(word => lowerText === word || lowerText.startsWith(word + ' ') || lowerText.endsWith(' ' + word));
 
-      if (isTriggerWord) {
+      // Trigger 1: Creator questions
+      const creatorTriggers = ['who made you', 'who created you', 'who built you', 'who made u', 'who created u', 'who built u', 'who is your creator', 'who made vexel'];
+      const isCreatorQuery = creatorTriggers.some(phrase => lowerText.includes(phrase));
+
+      if (isCreatorQuery) {
+        setTimeout(() => {
+          const creatorMsg = document.createElement('div');
+          creatorMsg.className = 'message bot';
+          creatorMsg.textContent = 'M.shehryarAbbas made me and hes the king';
+          chatBox.appendChild(creatorMsg);
+          chatBox.scrollTop = chatBox.scrollHeight;
+        }, 300);
+        return;
+      }
+
+      // Trigger 2: Polite word responses
+      const masterTriggers = ['sorry', 'ty', 'thanks', 'thank you', 'please', 'okay', 'ok'];
+      const isMasterTrigger = masterTriggers.some(word => lowerText === word || lowerText.startsWith(word + ' ') || lowerText.endsWith(' ' + word));
+
+      if (isMasterTrigger) {
         setTimeout(() => {
           const masterMsg = document.createElement('div');
           masterMsg.className = 'message bot';
@@ -332,7 +348,7 @@
         return;
       }
 
-      // Add animated loading placeholder
+      // Animated loading placeholder for general queries
       const botMsg = document.createElement('div');
       botMsg.className = 'message bot';
       botMsg.innerHTML = `<div class="dots-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
@@ -362,3 +378,4 @@
   </script>
 </body>
 </html>
+ 
