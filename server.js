@@ -10,7 +10,7 @@ async function handleChat(req, res) {
     const message = req.body.message || req.body.prompt || req.body.text || "Hello";
     const apiKey = process.env.GEMINI_API_KEY;
 
-    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
+    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
