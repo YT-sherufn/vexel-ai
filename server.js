@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.post('/api/chat', async (req, res) => {
+async function handleChat(req, res) {
   try {
     const { message } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
@@ -24,7 +24,11 @@ app.post('/api/chat', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+}
+
+// Support both possible endpoint paths
+app.post('/api/chat', handleChat);
+app.post('/chat', handleChat);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
