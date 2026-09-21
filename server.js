@@ -10,7 +10,7 @@ async function handleChat(req, res) {
     const message = req.body.message || req.body.prompt || req.body.text || "Hello";
     const apiKey = process.env.GEMINI_API_KEY;
 
-    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -42,3 +42,4 @@ app.post('/generate', handleChat);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
