@@ -7,7 +7,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 async function handleChat(req, res) {
   try {
-    const { message } = req.body;
+    const message = req.body.message || req.body.prompt || req.body.text || "Hello";
     const apiKey = process.env.GEMINI_API_KEY;
 
     const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -19,16 +19,27 @@ async function handleChat(req, res) {
     });
 
     const data = await apiResponse.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
-    res.json({ reply });
+
+    if (data.error) {
+      return res.json({ reply: "Google API Error: " + data.error.message });
+    }
+
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (reply) {
+      res.json({ reply });
+    } else {
+      res.json({ reply: "Connected, but got empty response. Check API Key." });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
 
-// Support both possible endpoint paths
+// Catch all common chat routes automatically
 app.post('/api/chat', handleChat);
 app.post('/chat', handleChat);
+app.post('/api/generate', handleChat);
+app.post('/generate', handleChat);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
