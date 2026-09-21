@@ -1,12 +1,25 @@
 const express = require('express');
 const path = require('path');
-const app = express();
+const { GoogleGenAI } = require('@google/generative-ai');
 
-// Serve static files from the public folder
+const app = express();
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Your other API routes (like Gemini) can go here if you have them...
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { message } = req.body;
+    const response = await ai.models.generateContent({
+      model: 'gemini-1.5-flash',
+      contents: message,
+    });
+    res.json({ reply: response.text });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
